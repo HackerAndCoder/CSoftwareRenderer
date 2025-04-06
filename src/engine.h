@@ -5,9 +5,6 @@
 #include "stdbool.h"
 #include "image.h"
 
-#define WIDTH 1000
-#define HEIGHT 800
-
 typedef void (*TickCallbackFunc)(int);
 
 typedef void (*InputCallbackFunc)(SDL_Event);

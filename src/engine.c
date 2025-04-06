@@ -8,6 +8,7 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_stdinc.h>
 #include "engine.h"
+#include "globals.h"
 
 #define DEBUGFPS false
 
@@ -32,7 +33,7 @@ static InputCallbackFunc input_func = NULL;
 bool running = true;
 
 Uint32 _encode_color(Color color) {
-    return (color.b << 24) | (color.g << 16) | (color.r << 8) | 255;
+    return (color.r << 24) | (color.g << 16) | (color.b << 8) | 255;
 }
 
 void _set_pixel(int i, Uint32 color) {
@@ -55,10 +56,12 @@ void set_block(int x, int y, int width, int height, Color color) {
 }
 
 void render_image(int x, int y, Image *img) {
+    if (!img) {
+        return;
+    }
     for (int a = 0; a < img->width; a++) {
         for (int b = 0; b < img->height; b++) {
-            Color color = img->data[img->width*a + b];
-            set_pixel(a + x, b + y, color);
+            set_pixel(a + x, b + y, img->data[img->width*a + b]);
         }
     }
 }
@@ -82,6 +85,10 @@ void clear() {
     }
 }
 
+void _set_quit_dirty() {
+    running = false;
+}
+
 void update() {
     // fps stuff
     last_time = current_time;
@@ -98,8 +105,7 @@ void update() {
         }
         
         if (event.type == SDL_QUIT) {
-            quit();
-            running = false;
+            _set_quit_dirty();
             return;
         }
     }
@@ -138,4 +144,9 @@ void start() {
        SDL_RenderCopy(renderer, framebuffer, NULL, NULL);
        SDL_RenderPresent(renderer);
     }
+    
+    
+    
+    quit();
+    return;
 }

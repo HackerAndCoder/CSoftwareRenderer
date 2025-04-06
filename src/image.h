@@ -12,6 +12,8 @@ typedef struct {
 
 Image load_image(const char *path);
 
+void scale_image(Image *img, float scale);
+
 void free_image(Image *img);
 
 #endif
