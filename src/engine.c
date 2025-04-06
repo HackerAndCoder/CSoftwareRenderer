@@ -34,7 +34,7 @@ static InputCallbackFunc input_func = NULL;
 bool running = true;
 
 Uint32 _encode_color(Color color) {
-    return (255 << 24) | (color.b << 16) | (color.g << 8) | color.r;
+    return (255 << 24) | (color.r << 16) | (color.g << 8) | color.b;
 }
 
 void set_pixel(int x, int y, Color color) {
@@ -52,6 +52,14 @@ void set_block(int x, int y, int width, int height, Color color) {
     }
 }
 
+void render_image(int x, int y, Image *img) {
+    for (int a = 0; a < img->width; a++) {
+        for (int b = 0; b < img->height; b++) {
+            Color color = img->data[img->width*a + b];
+            set_pixel(a + x, b + y, color);
+        }
+    }
+}
 
 void register_tick_callback(TickCallbackFunc func) {
     tick_func = func;

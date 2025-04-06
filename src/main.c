@@ -4,8 +4,12 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_scancode.h>
 
+#include "image.h"
+
 int x, y;
 int time_since_last_tick;
+
+Image test;
 
 void game_tick() {
     //printf("%i", time_since_last_tick);
@@ -28,7 +32,10 @@ void tick(int delta) {
     time_since_last_tick += delta;
     game_tick();
     
-    set_block(x, y, 4, 4, (Color){0, 0, 0});
+    set_block(0, 0, 40, 40, (Color){255, 0, 0});
+    set_block(40, 0, 40, 40, (Color){0, 255, 0});
+    set_block(80, 0, 40, 40, (Color){0, 0, 255});
+    render_image(100, 100, &test);
     //set_pixel(x, y, (Color){0, 0, 0});
     //set_pixel(x, y+1, (Color){0, 0, 0});
 }
@@ -40,10 +47,11 @@ void input_callback(SDL_Event event) {
 }
 
 void init() {
-    
+    test = load_image("src/assets/block.bin");
 }
 
 int main() {
     register_tick_callback(tick);
+    init();
     start();
 }

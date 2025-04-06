@@ -36,4 +36,4 @@ for path in args:
         d.append(item[2])
     
     with open(path.split(".")[0] + ".bin", "wb") as f:
-        f.write(struct.pack(f'{width*height*3+2}H', *d))
+        f.write(struct.pack(f'{width*height*3+2}i', *d))

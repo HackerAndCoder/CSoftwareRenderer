@@ -3,10 +3,7 @@
 
 #include <SDL2/SDL_events.h>
 #include "stdbool.h"
-
-typedef struct {
-    int r, g, b;
-} Color;
+#include "image.h"
 
 typedef void (*TickCallbackFunc)(int);
 
@@ -21,6 +18,8 @@ bool is_key_down(int);
 void set_pixel(int x, int y, Color color);
 
 void set_block(int x, int y, int width, int height, Color color);
+
+void render_image(int x, int y, Image *img);
 
 Uint32 _encode_color(Color color);
 

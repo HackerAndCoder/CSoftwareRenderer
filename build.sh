@@ -1,3 +1,3 @@
-gcc -o main main.c engine.c -lSDL2
+gcc -o main src/main.c src/engine.c src/image.c -lSDL2
 
 ./main
