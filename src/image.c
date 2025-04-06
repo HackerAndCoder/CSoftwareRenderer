@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "globals.h"
 
 Image load_image(const char *path) {
     FILE *file = fopen(path, "rb");

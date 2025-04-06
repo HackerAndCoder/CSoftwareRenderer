@@ -37,6 +37,9 @@ Uint32 _encode_color(Color color) {
 }
 
 void _set_pixel(int i, Uint32 color) {
+    if (i < 0 || i > WIDTH*HEIGHT) {
+        return;
+    }
     pixel_buffer[i] = color;
 }
 
