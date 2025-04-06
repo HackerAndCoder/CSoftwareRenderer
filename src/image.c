@@ -28,10 +28,12 @@ Image load_image(const char *path) {
     
     Color *colors = malloc(img.width * img.height * sizeof(Color));
     
+    int total = img.width * img.width;
+    
     for (int i = 0; i < img.width * img.height; i++) {
-        colors[i].r = data[i * 3 + 0];
+        colors[i].r = data[i * 3 + 2];
         colors[i].g = data[i * 3 + 1];
-        colors[i].b = data[i * 3 + 2];
+        colors[i].b = data[i * 3 + 0];
     }
     
     free(data);

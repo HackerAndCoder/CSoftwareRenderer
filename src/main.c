@@ -35,9 +35,8 @@ void tick(int delta) {
     set_block(0, 0, 40, 40, (Color){255, 0, 0});
     set_block(40, 0, 40, 40, (Color){0, 255, 0});
     set_block(80, 0, 40, 40, (Color){0, 0, 255});
+    
     render_image(100, 100, &test);
-    //set_pixel(x, y, (Color){0, 0, 0});
-    //set_pixel(x, y+1, (Color){0, 0, 0});
 }
 
 

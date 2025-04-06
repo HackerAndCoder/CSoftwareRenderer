@@ -9,8 +9,6 @@
 #include <SDL2/SDL_stdinc.h>
 #include "engine.h"
 
-#define WIDTH 1000
-#define HEIGHT 800
 #define DEBUGFPS false
 
 SDL_Window* window;
@@ -34,7 +32,11 @@ static InputCallbackFunc input_func = NULL;
 bool running = true;
 
 Uint32 _encode_color(Color color) {
-    return (255 << 24) | (color.r << 16) | (color.g << 8) | color.b;
+    return (color.b << 24) | (color.g << 16) | (color.r << 8) | 255;
+}
+
+void _set_pixel(int i, Uint32 color) {
+    pixel_buffer[i] = color;
 }
 
 void set_pixel(int x, int y, Color color) {

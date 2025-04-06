@@ -5,6 +5,9 @@
 #include "stdbool.h"
 #include "image.h"
 
+#define WIDTH 1000
+#define HEIGHT 800
+
 typedef void (*TickCallbackFunc)(int);
 
 typedef void (*InputCallbackFunc)(SDL_Event);
@@ -14,6 +17,8 @@ void register_tick_callback(TickCallbackFunc func);
 void register_input_callback(InputCallbackFunc func);
 
 bool is_key_down(int);
+
+void _set_pixel(int i, Uint32 color);
 
 void set_pixel(int x, int y, Color color);
 
