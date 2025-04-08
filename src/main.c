@@ -3,15 +3,31 @@
 #include "stdbool.h"
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_scancode.h>
+#include <math.h>
 
 #include "image.h"
 #include "globals.h"
 
-int camera_x, camera_y;
 int time_since_last_tick;
 
-Image test;
+Image test, yellow;
 
+typedef struct {
+    int x, y;
+    Image *img;
+} Sprite;
+
+typedef struct {
+    Sprite sprite;
+} Player;
+
+typedef struct {
+    int x, y;
+} Camera;
+
+Player player;
+
+Camera camera;
 
 #define LEVELSIZE 10
 int level[LEVELSIZE][LEVELSIZE];
@@ -27,10 +43,10 @@ void game_tick() {
     
     float move_speed = 0.05f;
     
-    if (is_key_down(SDL_SCANCODE_W)) {camera_y++;}
-    if (is_key_down(SDL_SCANCODE_S)) {camera_y--;}
-    if (is_key_down(SDL_SCANCODE_A)) {camera_x++;}
-    if (is_key_down(SDL_SCANCODE_D)) {camera_x--;}
+    if (is_key_down(SDL_SCANCODE_W)) {camera.y--;}
+    if (is_key_down(SDL_SCANCODE_S)) {camera.y++;}
+    if (is_key_down(SDL_SCANCODE_A)) {camera.x--;}
+    if (is_key_down(SDL_SCANCODE_D)) {camera.x++;}
     
 }
 
@@ -38,16 +54,18 @@ void render_level(int xoffset, int yoffset) {
     for (int y = 0; y < LEVELSIZE; y++) {
         for (int x = 0; x < LEVELSIZE; x++) {
             if (level[x][y] == 1) {
-                float fx = xoffset + x * scale;
-                float fy = yoffset + y * scale;
+                int blockx = floor(x * scale);
+                int blocky = floor(y * scale);
                 
-                int finalx = (int)(fx);
-                int finaly = (int)(fy);
+                int fx = xoffset + blockx;
+                int fy = yoffset + blocky;
                 
-                render_image(finalx, finaly, &test);
+                render_image(fx, fy, &test);
             }
         }
     }
+    
+    render_image(player.sprite.x + xoffset, player.sprite.y + yoffset, player.sprite.img);
 }
 
 void tick(int delta) {
@@ -58,10 +76,12 @@ void tick(int delta) {
     time_since_last_tick += delta;
     game_tick();
     
-    int player_size = 20;
-    set_block(WIDTH/2-player_size, HEIGHT/2-player_size, player_size, player_size, (Color){255, 0, 0});
+    player.sprite.x = camera.x + WIDTH/2-player.sprite.img->width/2;
+    player.sprite.y = camera.y + HEIGHT/2-player.sprite.img->height/2;
     
-    render_level(camera_x, camera_y);
+    // TODO CONVERT PLAYER COORDS TO LEVEL SPACE AND CHECK FOR BLOCK AT COORDS
+    
+    render_level(-camera.x, -camera.y);
 }
 
 void input_callback(SDL_Event event) {}
@@ -80,11 +100,15 @@ void init_level() {
 
 void init() {
     test = load_image("src/assets/block.bin");
+    yellow = load_image("src/assets/yellow.bin");
     scale_image(&test, scale/test.width);
+    
+    player.sprite.img = &yellow;
 }
 
 void free_images() {
     free_image(&test);
+    free_image(&yellow);
 }
 
 int main() {
