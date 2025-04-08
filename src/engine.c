@@ -44,7 +44,7 @@ void _set_pixel(int i, Uint32 color) {
 }
 
 void set_pixel(int x, int y, Color color) {
-    if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) {
+    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
         return;
     }
     pixel_buffer[WIDTH*y + x] = _encode_color(color);
