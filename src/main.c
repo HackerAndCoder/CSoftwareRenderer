@@ -3,14 +3,33 @@
 #include "stdbool.h"
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_scancode.h>
-#include <math.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "image.h"
 #include "globals.h"
+
+#define PIPENUM 2
+#define PIPEWIDTH 70
+
+#define PIPECLEARANCE 200
+
+#define PIPESPACE WIDTH / PIPENUM
+
+#define JUMP_STRENGTH 10
+#define GRAVITY 0.001
 
 int time_since_last_tick;
 
 Image test, yellow;
+
+typedef struct {
+    int x, y;      // Top-left corner
+    int width, height;
+} Rectangle;
+
+typedef struct {
+    int x, space_height, width;
+} Pipe;
 
 typedef struct {
     int x, y;
@@ -25,14 +44,31 @@ typedef struct {
     int x, y;
 } Camera;
 
-Player player;
+typedef struct {
+    int y;
+    float velocity;
+} Bird;
 
 Camera camera;
 
-#define LEVELSIZE 10
-int level[LEVELSIZE][LEVELSIZE];
+Bird bird;
 
-float scale = HEIGHT / LEVELSIZE;
+bool jumped;
+
+Pipe pipes[PIPENUM];
+
+Pipe gen_pipe(int x) {
+    Pipe pipe;
+    
+    pipe.x = x;
+    
+    pipe.width = PIPEWIDTH;
+    
+    int space = random() % (HEIGHT - PIPECLEARANCE * 2) + PIPECLEARANCE;
+    
+    pipe.space_height = space;
+    return pipe;
+}
 
 void game_tick() {
     //printf("%i", time_since_last_tick);
@@ -41,31 +77,43 @@ void game_tick() {
     }
     time_since_last_tick = 0;
     
-    float move_speed = 0.05f;
+    for (int i = 0; i < PIPENUM; i++) {
+        pipes[i].x -= 1;
+        if (pipes[i].x < -PIPEWIDTH) {
+            pipes[i] = gen_pipe(WIDTH);
+        }
+    }
     
-    if (is_key_down(SDL_SCANCODE_W)) {camera.y--;}
-    if (is_key_down(SDL_SCANCODE_S)) {camera.y++;}
-    if (is_key_down(SDL_SCANCODE_A)) {camera.x--;}
-    if (is_key_down(SDL_SCANCODE_D)) {camera.x++;}
+    bird.velocity -= GRAVITY;
+    bird.y -= floor(bird.velocity);
+    
+    if (bird.y < 0) {
+        bird.y = 0;
+    }
+    
+    printf("%d\n", bird.y);
+    fflush(stdout);
+    
+    if (is_key_down(SDL_SCANCODE_SPACE) && !jumped) {
+        jumped = true;
+        bird.y -= JUMP_STRENGTH;
+        //bird.y = 10;
+        printf("Jumped\n");
+    } else {
+        jumped = false;
+    }
+    
     
 }
 
 void render_level(int xoffset, int yoffset) {
-    for (int y = 0; y < LEVELSIZE; y++) {
-        for (int x = 0; x < LEVELSIZE; x++) {
-            if (level[x][y] == 1) {
-                int blockx = floor(x * scale);
-                int blocky = floor(y * scale);
-                
-                int fx = xoffset + blockx;
-                int fy = yoffset + blocky;
-                
-                render_image(fx, fy, &test);
-            }
-        }
+    for (int i = 0; i < PIPENUM; i++) {
+        Pipe current = pipes[i];
+        set_block(current.x, 0, current.width, current.space_height - (PIPECLEARANCE / 2), (Color){0, 170, 0});
+        set_block(current.x, current.space_height + (PIPECLEARANCE / 2), current.width, HEIGHT, (Color){0, 170, 0});
     }
     
-    render_image(player.sprite.x + xoffset, player.sprite.y + yoffset, player.sprite.img);
+    set_block(WIDTH / 2, bird.y, 100, 100, (Color){255, 0, 0});
 }
 
 void tick(int delta) {
@@ -74,36 +122,17 @@ void tick(int delta) {
         delta = 1;
     }
     time_since_last_tick += delta;
-    game_tick();
-    
-    player.sprite.x = camera.x + WIDTH/2-player.sprite.img->width/2;
-    player.sprite.y = camera.y + HEIGHT/2-player.sprite.img->height/2;
-    
-    // TODO CONVERT PLAYER COORDS TO LEVEL SPACE AND CHECK FOR BLOCK AT COORDS
     
     render_level(-camera.x, -camera.y);
+    game_tick();
 }
 
 void input_callback(SDL_Event event) {}
 
-void init_level() {
-    for (int y = 0; y < LEVELSIZE; y++) {
-        for (int x = 0; x < LEVELSIZE; x++) {
-            if (x == 0 || x == LEVELSIZE-1 || y == 0 || y == LEVELSIZE-1) {
-                level[x][y] = 1;
-            } else {
-                level[x][y] = 0;
-            }
-        }
-    }
-}
-
 void init() {
-    test = load_image("src/assets/block.bin");
-    yellow = load_image("src/assets/yellow.bin");
-    scale_image(&test, scale/test.width);
-    
-    player.sprite.img = &yellow;
+    for (int i = 0; i < PIPENUM; i++) {
+        pipes[i] = gen_pipe(i * PIPESPACE);
+    }
 }
 
 void free_images() {
@@ -113,7 +142,6 @@ void free_images() {
 
 int main() {
     register_tick_callback(tick);
-    init_level();
     init();
     start();
     free_images();
